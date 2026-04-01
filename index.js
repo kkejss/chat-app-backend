@@ -7,7 +7,9 @@ const configureSocket = require("./src/settings/socket.config.js");
 
 // Vendos mjedisin (development ose production) dhe ngarkon variablat nga .env
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+}
 
 // Krijon aplikacionin Express dhe serverin HTTP
 const app = express();
