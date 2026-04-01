@@ -1,0 +1,16 @@
+# Varësitë - instalohen me "npm install"
+node_modules/
+
+# Skedarët e mjedisit 
+.env
+.env.*
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Sistem operativ
+.DS_Store
+Thumbs.db
