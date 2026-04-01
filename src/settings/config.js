@@ -10,7 +10,7 @@ const conversationsRouter = require("../conversations/conversations.router.js");
 function configureApp(app) {
   // Lejon kerkesa nga frontend-i (CORS) me cookie mbeshtetje
   app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: true,
     credentials: true,
   }));
 
