@@ -43,7 +43,7 @@ async function sendMessageProvider(req, res) {
 
     // Transmeton ne kohe reale te te gjitheve ne dhomin e bisedes
     if (req.io) {
-      req.io.to(`conv:${conversationId}`).emit("message:new", {
+      req.io.to(`${conversationId}`).emit("message:new", {
         conversationId,
         message: messageForClient,
       });
