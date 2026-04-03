@@ -1,14 +1,28 @@
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 
-// Ruan perdoruesit online: userId -> socketId
 const onlineUsers = new Map();
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  const allowed = process.env.CLIENT_URL || "http://localhost:5173";
+  if (origin === allowed) return true;
+  if (origin.endsWith(".vercel.app")) return true;
+  if (origin.startsWith("http://localhost")) return true;
+  return false;
+}
 
 // Inicializon Socket.io, autentikon JWT dhe menaxhon ngjarjet ne kohe reale
 function configureSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL || "http://localhost:5173",
+      origin: (origin, callback) => {
+        if (isAllowedOrigin(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error(`CORS: origin ${origin} not allowed`));
+        }
+      },
       credentials: true,
     },
   });
@@ -29,7 +43,6 @@ function configureSocket(server) {
   io.on("connection", (socket) => {
     const userId = socket.userId;
 
-    // Shton perdoruesin ne listen e online dhe njofton te tjeret
     onlineUsers.set(userId, socket.id);
     console.log(`[Socket] User ${userId} connected`);
     io.emit("user:online", { userId });
@@ -39,7 +52,7 @@ function configureSocket(server) {
       socket.join(`conv:${conversationId}`);
     });
 
-    // Transmeton ngjarjet e shkrimit (typing) te perdoruesit tjeter
+    // Transmeton ngjarjet e shkrimit te perdoruesit tjeter
     socket.on("typing:start", ({ conversationId }) => {
       socket.to(`conv:${conversationId}`).emit("typing:start", { userId });
     });
@@ -47,7 +60,7 @@ function configureSocket(server) {
       socket.to(`conv:${conversationId}`).emit("typing:stop", { userId });
     });
 
-    // Heq perdoruesin nga lista kur shkeputen dhe njofton te tjeret
+    // Heq perdoruesin nga lista kur shkeputen
     socket.on("disconnect", () => {
       onlineUsers.delete(userId);
       io.emit("user:offline", { userId });
